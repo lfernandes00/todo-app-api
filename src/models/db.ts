@@ -23,5 +23,9 @@ db.sequelize = sequelize;
 
 db.user = require("./users.model")(sequelize, DataTypes);
 db.project = require("./projects.model")(sequelize, DataTypes);
+db.type = require("./types.model")(sequelize, DataTypes);
+
+db.type.hasMany(db.project, { foreignKey: "typeId" });
+db.project.belongsTo(db.type, { foreignKey: "typeId" });
 
 export = db;
