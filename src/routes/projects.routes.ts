@@ -17,7 +17,7 @@ router.use((req, res, next) => {
 router
   .route("/")
   .post(
-    [body("userId").notEmpty().escape(), body("name").notEmpty().escape()],
+    [body("typeId").notEmpty().escape(), body("name").notEmpty().escape()],
     function (req: Request, res: Response) {
       const errors = validationResult(req);
       if (errors.isEmpty()) {
@@ -31,7 +31,7 @@ router
 router.route("/").get(function (req: Request, res: Response) {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
-    listAll(req, res);
+    validateToken(req, res), listAll(req, res);
   } else {
     res.status(400).send(errors);
   }
