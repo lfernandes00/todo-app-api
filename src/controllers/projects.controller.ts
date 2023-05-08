@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import db from "../models/db";
 
 const Project = db.project;
+const Type = db.type;
 
 interface Project {
   id?: number;
@@ -12,10 +13,11 @@ interface Project {
 }
 
 export const create = (req: Request, res: Response) => {
-  const { userId, name } = req.body;
+  const { name, typeId } = req.body;
 
   const newProject = {
-    userId, // change to logged user id
+    userId: req.loggedUserId,
+    typeId: typeId,
     name,
     isFavourite: false,
   };
@@ -30,7 +32,14 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const listAll = (req: Request, res: Response) => {
-  Project.findAll()
+  Project.findAll({
+    include: [
+      {
+        model: Type,
+        attributes: ["description"],
+      },
+    ],
+  })
     .then((projects: Project) => {
       if (!projects) {
         res.status(404).json({ message: "0 projects founded!" });
@@ -44,24 +53,31 @@ export const listAll = (req: Request, res: Response) => {
 export const update = (req: Request, res: Response) => {
   const { projectId } = req.params;
 
-  Project.findOne({ where: { id: projectId } }).then((project: Project) => {
-    if (!project) {
-      res
-        .status(404)
-        .json({ message: `Project with id ${projectId} not found` });
-    } else {
-      // Add verification to check if the logged user is the owner of the project
-      Project.update(req.body, { where: { id: projectId } })
-        .then((num: number) => {
-          if (num == 1) {
-            res.status(200).json({
-              message: `Project with id ${projectId} updated with success`,
-            });
-          } else {
-            res.status(404).json({ message: "Error while updating user" });
-          }
-        })
-        .catch(({ message }) => res.status(500).json({ message }));
-    }
-  });
+  Project.findOne({ where: { id: projectId } })
+    .then((project: Project) => {
+      if (!project) {
+        res
+          .status(404)
+          .json({ message: `Project with id ${projectId} not found!` });
+      } else {
+        if (req.loggedUserId === project.id) {
+          Project.update(req.body, {
+            where: { id: projectId },
+          }).then((num: number) => {
+            if (num == 1) {
+              res.status(200).json({
+                message: `Project with id ${projectId} updated with success!`,
+              });
+            } else {
+              res.status(400).json({ message: "Error while updating project" });
+            }
+          });
+        } else {
+          res
+            .status(400)
+            .json({ message: "Cannot update other users projects" });
+        }
+      }
+    })
+    .catch(({ message }) => res.status(500).json({ message }));
 };
