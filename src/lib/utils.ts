@@ -29,8 +29,7 @@ export const validateToken = (req: Request, res: Response) => {
         })
         .catch(({ message }) => res.status(500).json({ message }));
 
-      // req.loggedUserId = decoded.user.id;
-      // req.loggedUserRole = decoded.user.roleId;
+      req.loggedUserId = decoded.user.id;
     }
   );
 };
