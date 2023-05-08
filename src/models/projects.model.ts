@@ -9,6 +9,11 @@ export = (sequelize: Sequelize) => {
         allowNull: false,
         validate: { notNull: { msg: "UserId can't be empty!" } },
       },
+      typeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: { notNull: { msg: "TypeId can't be empty!" } },
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
