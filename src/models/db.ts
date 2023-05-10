@@ -23,9 +23,16 @@ db.sequelize = sequelize;
 
 db.user = require("./users.model")(sequelize, DataTypes);
 db.project = require("./projects.model")(sequelize, DataTypes);
+db.task = require("./tasks.model")(sequelize, DataTypes);
 db.type = require("./types.model")(sequelize, DataTypes);
 
 db.type.hasMany(db.project, { foreignKey: "typeId" });
 db.project.belongsTo(db.type, { foreignKey: "typeId" });
+
+db.type.hasMany(db.task, { foreignKey: "projectId" });
+db.task.belongsTo(db.type, { foreignKey: "projectId" });
+
+db.project.hasMany(db.task, { foreignKey: "projectId" });
+db.task.belongsTo(db.project, { foreignKey: "projectId" });
 
 export = db;
